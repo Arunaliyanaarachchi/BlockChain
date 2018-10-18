@@ -5,7 +5,7 @@ const crypto = require('crypto');
 class Block{
     constructor(merkleRoot, timeStamp, data, prevHash){
         this.merkelRoot = merkleRoot;
-        this.time = timeStamp;
+        this.timeStamp = timeStamp;
         this.data = data;
         this.prevHash = prevHash;
         this.hash = this.calcHash();
@@ -13,7 +13,7 @@ class Block{
     }
 
     calcHash(){
-        return SHA256(this.index + this.prevHash + this.timeStamp + JSON.stringify(this.data) + this.nonce).toString();
+        return SHA256(this.merkelRoot+ this.prevHash + this.timeStamp + JSON.stringify(this.data) + this.nonce).toString();
     }
 
     mineBlock(difficulty){
