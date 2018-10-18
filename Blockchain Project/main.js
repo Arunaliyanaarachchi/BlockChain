@@ -1,8 +1,10 @@
 const SHA256 = require('crypto-js/sha256');
+const MerkleTree = require('merkletreejs');
+const crypto = require('crypto');
 
 class Block{
-    constructor(index, timeStamp, data, prevHash){
-        this.index = index;
+    constructor(merkleRoot, timeStamp, data, prevHash){
+        this.merkelRoot = merkleRoot;
         this.time = timeStamp;
         this.data = data;
         this.prevHash = prevHash;
@@ -124,24 +126,59 @@ class Blockchain{
         }
         return true;
     }
+
+    verifyTree(tree){
+        const root = tree.getRoot()
+        const proof = tree.getProof(leaves[2])
+        const verified = tree.verify(proof, leaves[2], root)
+    }
+}
+
+function sha256(data) {
+    // returns Buffer
+    return crypto.createHash('sha256').update(data).digest()
+}
+
+function createTree(data){
+    const leaves = ['a', 'b', 'a'].map(x => sha256(x));
+    const tree = new MerkleTree(leaves, sha256)
+    const root = tree.getRoot();
+    
+    //const proof = tree.getProof(this.data);
+    //const verified = tree.verify(proof, this.data, root);
+
+    return root;
 }
 
 let twonCoin = new Blockchain();
 
 console.log('Mining block 1...');
-twonCoin.addBlock(new Block(++twonCoin.chainSize, twonCoin.getCurrentDateTime(), {amount: 4}));
 
+let data = {amount: 4};
+let root = createTree(data);
+twonCoin.addBlock(new Block(root, twonCoin.getCurrentDateTime(), data, twonCoin.prevHash));
+//console.log(twonCoin.verifyTree(tree));
+
+
+data = {amount: 10};
+root = createTree(data);
 console.log('Mining block 2...');
-twonCoin.addBlock(new Block(++twonCoin.chainSize, twonCoin.getCurrentDateTime(), {amount: 10}));
+twonCoin.addBlock(new Block(root, twonCoin.getCurrentDateTime(), data, twonCoin.prevHash));
 
 //console.log('Is blockChain Valid: ' + twonCoin.isChainValid())
 
-//Calculation changes the hash so isChainValad false
+/* ///////////////////////////////////////////////////////////////////////////////////////
+                                Test Cases
+
+//Calculation changes the hash so isChainValad should return false
 //twonCoin.chain[1].data = {amount: 100};
 
-//Breaks the blockChain and isChainValid return false
+//Breaks the blockChain by recalculating hash and isChainValid should return false
 //twonCoin.chain[1].hash = twonCoin.chain[1].calcHash();
-
+                                
+                                Test Cases
+*/ //////////////////////////////////////////////////////////////////////////////////////
 //console.log('Is blockChain Valid: ' + twonCoin.isChainValid())
 
+//console.log(tree);
 console.log(JSON.stringify(twonCoin, null, 4)); 
