@@ -162,7 +162,7 @@ let data = "trial";
 var tree = new MerkleTree(leaves, sha256);
 const root = tree.getRoot(); //createTree(data);
 console.log(root);
-twonCoin.addBlock(new Block(root, twonCoin.getCurrentDateTime(), data, twonCoin.prevHash));
+twonCoin.addBlock(new Block(JSON.stringify(root), twonCoin.getCurrentDateTime(), data, twonCoin.prevHash));
 //console.log(twonCoin.verifyTree(tree));
 
 leaves = ['d', 'e', 'f'].map(x => sha256(x));
@@ -170,7 +170,7 @@ data = "test";
 tree = new MerkleTree(leaves, sha256);
 let root2 = tree.getRoot();
 console.log('Mining block 2...');
-twonCoin.addBlock(new Block(root2, twonCoin.getCurrentDateTime(), data, twonCoin.prevHash));
+twonCoin.addBlock(new Block(JSON.stringify(root2), twonCoin.getCurrentDateTime(), data, twonCoin.prevHash));
 
 //console.log('Is blockChain Valid: ' + twonCoin.isChainValid())
 
@@ -187,6 +187,6 @@ twonCoin.addBlock(new Block(root2, twonCoin.getCurrentDateTime(), data, twonCoin
 */ //////////////////////////////////////////////////////////////////////////////////////
 //console.log('Is blockChain Valid: ' + twonCoin.isChainValid())
 
-console.log(root);
-console.log(JSON.stringify(root2));
-//console.log(JSON.stringify(twonCoin, null, 4)); 
+//console.log(root);
+//console.log(JSON.stringify(root2));
+console.log(JSON.stringify(twonCoin, null, 4)); 
