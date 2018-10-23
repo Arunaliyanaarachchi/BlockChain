@@ -45,16 +45,8 @@ class Blockchain{
     //Returns the 
     getCurrentDateTime(){
         var now = new Date();
-        var hours = now.getHours();
-        var minutes = now.getMinutes();
-        var seconds = now.getMinutes();
-        var time = now.toTimeString();
-
         var dayOfWeek = now.getDay();
-        var day = now.getDate();
-        var month = now.getMonth();
-        var year = now.getFullYear();
-
+        
         //Gets the string version of the day of the week
         switch(dayOfWeek){
             case 1:
@@ -88,8 +80,18 @@ class Blockchain{
             default:
         }
 
+        var day = now.getDate();
+        var month = now.getMonth();
+        var year = now.getFullYear();
+
+        var hours = now.getHours();
+        var minutes = now.getMinutes();
+        var seconds = now.getMinutes();
+        var milisec = now.getMilliseconds();
+        var time = now.toTimeString();
+
         var date = dayOfWeek + ' ' + month + '/' + day + '/' + year;
-        var time = hours + ':' + minutes + ':' + seconds;
+        var time = hours + ':' + minutes + ':' + seconds + ':' + milisec;
 
         return date + " " + time;
     }
@@ -104,6 +106,7 @@ class Blockchain{
         newBlock.prevHash = this.getLatestBlock().hash;
         newBlock.mineBlock(this.difficulty);
         this.chain.push(newBlock);
+        this.chainSize++;
     } 
 
     //Loops through the chain comparing the hashes of the currentBlock and the previous 
@@ -128,20 +131,20 @@ class Blockchain{
     }
 
     verifyTree(tree){
-        const root = tree.getRoot()
-        const proof = tree.getProof(leaves[2])
-        const verified = tree.verify(proof, leaves[2], root)
+        const root = tree.getRoot();
+        const proof = tree.getProof(leaves[2]);
+        const verified = tree.verify(proof, leaves[2], root);
     }
 }
 
 function sha256(data) {
     // returns Buffer
-    return crypto.createHash('sha256').update(data).digest()
+    return crypto.createHash('sha256').update(data).digest();
 }
 
 function createTree(data){
-    const leaves = ['a', 'b', 'a'].map(x => sha256(x));
-    const tree = new MerkleTree(leaves, sha256)
+    const leaves = [data.toString()].map(x => sha256(x));
+    const tree = new MerkleTree(leaves, sha256);
     const root = tree.getRoot();
     
     //const proof = tree.getProof(this.data);
@@ -154,16 +157,20 @@ let twonCoin = new Blockchain();
 
 console.log('Mining block 1...');
 
-let data = {amount: 4};
-let root = createTree(data);
+let leaves = ['a', 'b', 'c'].map(x => sha256(x));
+let data = "trial";
+var tree = new MerkleTree(leaves, sha256);
+const root = tree.getRoot(); //createTree(data);
+console.log(root);
 twonCoin.addBlock(new Block(root, twonCoin.getCurrentDateTime(), data, twonCoin.prevHash));
 //console.log(twonCoin.verifyTree(tree));
 
-
-data = {amount: 10};
-root = createTree(data);
+leaves = ['d', 'e', 'f'].map(x => sha256(x));
+data = "test";
+tree = new MerkleTree(leaves, sha256);
+let root2 = tree.getRoot();
 console.log('Mining block 2...');
-twonCoin.addBlock(new Block(root, twonCoin.getCurrentDateTime(), data, twonCoin.prevHash));
+twonCoin.addBlock(new Block(root2, twonCoin.getCurrentDateTime(), data, twonCoin.prevHash));
 
 //console.log('Is blockChain Valid: ' + twonCoin.isChainValid())
 
@@ -180,5 +187,6 @@ twonCoin.addBlock(new Block(root, twonCoin.getCurrentDateTime(), data, twonCoin.
 */ //////////////////////////////////////////////////////////////////////////////////////
 //console.log('Is blockChain Valid: ' + twonCoin.isChainValid())
 
-//console.log(tree);
-console.log(JSON.stringify(twonCoin, null, 4)); 
+console.log(root);
+console.log(JSON.stringify(root2));
+//console.log(JSON.stringify(twonCoin, null, 4)); 
