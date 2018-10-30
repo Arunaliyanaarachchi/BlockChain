@@ -39,36 +39,29 @@ function Blockchain (){
             case 1:
                 dayOfWeek = 'Mon';
                 break;
-            
             case 2:
                 dayOfWeek = 'Tue';
                 break;
-            
             case 3:
                 dayOfWeek = 'Wed';
                 break;
-
             case 4:
                 dayOfWeek = 'Thur';
                 break;
-            
             case 5:
                 dayOfWeek = 'Fri';
                 break;
-
             case 6:
                 dayOfWeek = 'Sat';
                 break;
-
             case 7:
                 dayOfWeek = 'Sun';
                 break;
-
             default:
         }
 
         var day = now.getDate();
-        var month = now.getMonth();
+        var month = 1 + now.getMonth();
         var year = now.getFullYear();
 
         var hours = now.getHours();
@@ -100,7 +93,7 @@ function Blockchain (){
             if(currentBlock.prevHash !== previousBlock.hash)
                 return false;
 
-            let str = createTree(currentBlock.data)
+            let str = this.createTree(currentBlock.data)
 
             if(str !== currentBlock.merkelRoot)
                 return false;
@@ -126,6 +119,5 @@ function Blockchain (){
         str += root[31];
         return str;
     };
-
 
 module.exports = Blockchain;

@@ -1,7 +1,7 @@
 var Chain = require("./Blockchain.js");
 var Block = require("./Block.js");
 //var Person = require("./Person.js");
-
+var block = new Block();
 var twonCoin = new Chain();
 console.log('Mining block 1...');
 
@@ -22,17 +22,16 @@ twonCoin.addBlock(new Block(root2, twonCoin.getCurrentDateTime(), data, twonCoin
 //console.log('Is blockChain Valid: ' + twonCoin.isChainValid())
 
 /* ///////////////////////////////////////////////////////////////////////////////////////
-                                Test Cases
+//                                Test Cases
 
 //Calculation changes the hash so isChainValad should return false
-//twonCoin.chain[1].data = {amount: 100};
+twonCoin.chain[1].data =  100;
 
 //Breaks the blockChain by recalculating hash and isChainValid should return false
-//twonCoin.chain[1].hash = twonCoin.chain[1].calcHash();
-                                
-                                Test Cases
-*/ //////////////////////////////////////////////////////////////////////////////////////
-//console.log('Is blockChain Valid: ' + twonCoin.isChainValid())
+twonCoin.chain[1].hash = twonCoin.chain[1].calcHash();
+//                                Test Cases
+ ////////////////////////////////////////////////////////////////////////////////////// 
+console.log('Is blockChain Valid: ' + twonCoin.isChainValid());                        */
 
 //console.log(root);
 //console.log(JSON.stringify(root2));
