@@ -1,7 +1,6 @@
 var Chain = require("./Blockchain.js");
 var Block = require("./Block.js");
 //var Person = require("./Person.js");
-var block = new Block();
 var twonCoin = new Chain();
 console.log('Mining block 1...');
 

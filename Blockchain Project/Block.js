@@ -23,10 +23,5 @@ function Block (merkleRoot, timeStamp, data, prevHash){
 
         console.log("Block mined: " + this.hash);
     };
-
-    Block.prototype.setMerkle = function(merk){
-        this.merkelRoot = merk;
-    }
-
-
+    
 module.exports = Block;
