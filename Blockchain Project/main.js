@@ -36,6 +36,7 @@ console.log('Is blockChain Valid: ' + twonCoin.isChainValid());
 //console.log(JSON.stringify(root2));
 console.log(JSON.stringify(twonCoin, null, 4)); */
 
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const VoteNode = require('./VoteNode'); 
@@ -80,5 +81,6 @@ let VoteHTTP = function (){
 		
 	})
 }
+
 
 let httpserver = new VoteHTTP();
