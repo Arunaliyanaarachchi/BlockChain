@@ -25,3 +25,6 @@ function Block (merkleRoot, timeStamp, data, prevHash){
     };
     
 module.exports = Block;
+
+
+sdfgsdlfsfsdfsfsdf
