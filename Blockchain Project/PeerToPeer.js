@@ -1,4 +1,4 @@
-const VoteChain = require('./VoteChain');
+const VoteChain = require('./Blockchain');
 const WebSocket = require('ws');
 
 const VoteNode = function(port){
