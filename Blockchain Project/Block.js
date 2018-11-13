@@ -1,10 +1,10 @@
 const SHA256 = require('crypto-js/sha256');
-var Chain = require("./Blockchain.js");
+//var Chain = require("./Blockchain.js");
+var Peer = require("./Peers.js");
 
-function Block (merkleRoot, timeStamp, data, prevHash){
+function Block (data, merkleRoot, prevHash){
         this.merkelRoot = merkleRoot;
-        this.timeStamp = timeStamp;
-        this.data = data;
+        this.timeStamp = new Date.now();
         this.prevHash = prevHash;
         this.hash = this.calcHash();
         this.nonce = 0;
@@ -22,7 +22,7 @@ function Block (merkleRoot, timeStamp, data, prevHash){
         }
 
         console.log("Block mined: " + this.hash);
-    };
+    };    
     
 module.exports = Block;
 

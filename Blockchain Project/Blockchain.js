@@ -1,139 +1,127 @@
-const Crypto = require('crypto');
+const crypto = require('crypto');
+const MerkleTree = require('merkletreejs');
+var Block = require("./Block.js");
 
-const VoteChain = function() {
-	let chain = [];
-	let currentBlock = {};
-	let genesisBlock = {};
+function Blockchain (){
+        this.chain = [this.creatingGenesisBlock()];
+        this.difficulty = 2;
+        this.chainSize = 0;
+    }
 
-	function init(){
-		genesisBlock = { 
-            index: 0
-		  , timestamp: 1511818270000
-		  , data: 'our genesis data'
-		  , previousHash: "-1"
-		  , nonce: 0
-		};
+    Blockchain.prototype.creatingGenesisBlock = function(){
+        return new Block(this.chainSize, this.getCurrentDateTime(), "Genesis block", "0");
+    };
 
-		genesisBlock.hash = createHash(genesisBlock);
-		chain.push(genesisBlock);
-		currentBlock = genesisBlock; 
-	}
+    Blockchain.prototype.getLatestBlock = function(){
+        return this.chain[this.chain.length-1];
+	};
 
-	function createHash({ timestamp, data, index, previousHash, nonce }) {
-		return Crypto.createHash('SHA256').update(timestamp+data+index+previousHash+nonce).digest('hex');
-	}
+	Blockchain.prototype.getPrevHash = function(){
+        return this.chain[this.chain.length-1].prevHash;
+	};
 
-	function addToChain(block){
+    /**
+     * Takes in a new block 
+     * set the previous block
+     * calc the hash 
+     * Add to chain
+     **/
+    Blockchain.prototype.addBlock = function(newBlock){
+        newBlock.prevHash = this.getLatestBlock().hash;
+        newBlock.mineBlock(this.difficulty);
+        this.chain.push(newBlock);
+        this.chainSize++;
+    }; 
 
-		if(checkNewBlockIsValid(block, currentBlock)){
-			chain.push(block);
-			currentBlock = block; 
-			return true;
-		}
-		
-		return false;
-	}
-
-	function createBlock(data){
-		let newBlock = {
-		    timestamp: new Date().getTime()
-		  , data: data
-		  , index: currentBlock.index+1
-		  , previousHash: currentBlock.hash
-		  , nonce: 0
-		};
-
-		newBlock = BlockMining(newBlock);
-		console.log("Total Number of Blocks : " + getTotalBlocks());
-		return newBlock;
-	}
-
-	function BlockMining(block){
-
-		while(true){
-			block.hash = createHash(block);
-			if(block.hash.slice(-3) === "000"){	
-				return block;
-			}else{
-				block.nonce++;
-			}
-		}
-	}
-
-	function getLatestBlock(){
-		return currentBlock;
-	}
-
-	function getTotalBlocks(){
-		return chain.length;
-	}
-
-	function getChain(){
-		return chain;
-	}
-
-	function replaceChain(newChain){
-		chain = newChain;
-		currentBlock = chain[chain.length-1];
-	}
-
-	function checkNewBlockIsValid(block, previousBlock){
-		if(previousBlock.index + 1 !== block.index){
-			//Invalid index
-			return false;
-		}else if (previousBlock.hash !== block.previousHash){
-			//The previous hash is incorrect
-			return false;
-		}else if(!hashIsValid(block)){
-			//The hash isn't correct
-			return false;
-		}
-		
-		return true;
-	}	
-
-	function hashIsValid(block){
-		return (createHash(block) == block.hash);
-	}
-
-	function checkNewChainIsValid(newChain){
-		//Is the first block the genesis block?
-		if(createHash(newChain[0]) !== genesisBlock.hash ){
-			return false;
-		}
-
-		let previousBlock = newChain[0];
-		let blockIndex = 1;
-
-        while(blockIndex < newChain.length){
-        	let block = newChain[blockIndex];
-
-        	if(block.previousHash !== createHash(previousBlock)){
-        		return false;
-        	}
-
-        	if(block.hash.slice(-3) !== "000"){	
-        		return false;
-        	}
-
-        	previousBlock = block;
-        	blockIndex++;
+    //Returns the 
+    Blockchain.prototype.getCurrentDateTime = function(){
+        var now = new Date();
+        var dayOfWeek = now.getDay();
+        
+        //Gets the string version of the day of the week
+        switch(dayOfWeek){
+            case 1:
+                dayOfWeek = 'Mon';
+                break;
+            case 2:
+                dayOfWeek = 'Tue';
+                break;
+            case 3:
+                dayOfWeek = 'Wed';
+                break;
+            case 4:
+                dayOfWeek = 'Thur';
+                break;
+            case 5:
+                dayOfWeek = 'Fri';
+                break;
+            case 6:
+                dayOfWeek = 'Sat';
+                break;
+            case 7:
+                dayOfWeek = 'Sun';
+                break;
+            default:
         }
 
+        var day = now.getDate();
+        var month = 1 + now.getMonth();
+        var year = now.getFullYear();
+
+        var hours = now.getHours();
+        var minutes = now.getMinutes();
+        var seconds = now.getMinutes();
+        var milisec = now.getMilliseconds();
+        var time = now.toTimeString();
+
+        var date = dayOfWeek + ' ' + month + '/' + day + '/' + year;
+        var time = hours + ':' + minutes + ':' + seconds + ':' + milisec;
+
+        return date + " " + time;
+    };
+
+    //Loops through the chain comparing the hashes of the currentBlock and the previous 
+    //to make sure they match 
+    Blockchain.prototype.isChainValid = function(){
+        for(let i = 1; i < this.chain.length; i++){
+            const currentBlock = this.chain[i];
+            const previousBlock = this.chain[i - 1];
+
+            //Recalculate the hash to make sure the data is the same
+            //And the data has not been changed
+            if(currentBlock.hash != currentBlock.calcHash())
+                return false;
+            
+            //Compares the hashes of the current and previous block
+            //making sure they are the same
+            if(currentBlock.prevHash !== previousBlock.hash)
+                return false;
+
+            let str = this.createTree(currentBlock.data)
+
+            if(str !== currentBlock.merkelRoot)
+                return false;
+        }
         return true;
-	}
+    };
 
-	return {
-		init,
-		createBlock,
-		addToChain,
-		checkNewBlockIsValid,
-		getLatestBlock,
-		getTotalBlocks,
-		getChain,
-		checkNewChainIsValid,
-		replaceChain
-	};
-};
+    Blockchain.prototype.sha256 = function(data) {
+        // returns Buffer
+        return crypto.createHash('sha256').update(data).digest();
+    };
+    
+    Blockchain.prototype.createTree = function(data){
+        let leaves = [data.toString()].map(x => this.sha256(x));
+        var tree = new MerkleTree(leaves, "sha256");
+        const root = tree.getRoot();
+    
+        let str = "";
 
-module.exports = VoteChain;
+        for(let i = 0; i < 31; i++)
+            str += root[i] + ","; 
+        
+        str += root[31];
+        return str;
+    };
+
+module.exports = Blockchain;

@@ -1,11 +1,12 @@
-const VoteChain = require('./Blockchain');
+const Chain = require('./Blockchain');
+var Block = require("./Block.js");
 const WebSocket = require('ws');
 
-const VoteNode = function(port){
+const Peers = function(port){
     let VoteSockets = [];
     let VoteServer;
     let _port = port
-    let chain = new VoteChain();
+    let chain = new Chain();
 
     const REQUEST_CHAIN = "REQUEST_CHAIN";
     const REQUEST_BLOCK = "REQUEST_BLOCK";
@@ -13,13 +14,12 @@ const VoteNode = function(port){
 	const CHAIN = "CHAIN";
 
     function init(){
-
-        chain.init();
-		
+        //chain.init();
         VoteServer = new WebSocket.Server({ port: _port });
 		
         VoteServer.on('connection', (connection) => {
             console.log('connection in');
+            console.log(chain);
             initConnection(connection);
         });		
     }
@@ -59,16 +59,16 @@ const VoteNode = function(port){
 
     const processedRecievedBlock = (block) => {
 
-        let currentTopBlock = chain.getLatestBlock();
+        let currentBlock = chain.getLatestBlock();
 
         // Is the same or older?
-        if(block.index <= currentTopBlock.index){
+        if(block.index <= currentBlock.index){
         	console.log('No update needed');
         	return;
         }
 
         //Is claiming to be the next in the chain
-        if(block.previousHash == currentTopBlock.hash){
+        if(block.previousHash == currentBlock.hash){
         	//Attempt the top block to our chain
         	chain.addToChain(block);
 
@@ -108,8 +108,14 @@ const VoteNode = function(port){
     }
 
     const createBlock = (teammember) => {
-        let newBlock = chain.createBlock(teammember)
-        chain.addToChain(newBlock);
+        let merkleRoot = chain.createTree(teammember);
+        let prevBlock = chain.getLatestBlock();
+        let previousHash = prevBlock.hash;
+
+        let newBlock = Block.createBlock(teammember, merkleRoot, previousHash)
+        chain.addBlock(newBlock);
+
+        //Encryption software is using here
 
 		broadcastMessage(BLOCK, newBlock);
         
@@ -140,7 +146,6 @@ const VoteNode = function(port){
         createBlock,
         getStats
     }
-
 }
 
-module.exports = VoteNode;
+module.exports = PeerToPeer;
